@@ -1,32 +1,91 @@
-# Prerequisites
-*.d
+#Ignore some personal files
+*.txt
+*.fil
+*.acl
+*.dbp
+*.dat
+*.AC
+*.xml
+*.LOG
+*.old
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
+#ignore thumbnails created by windows
+Thumbs.db
+
+#stray CC files
+view.dat
+
+#ignore some file extensions
+*.txt
+*.old
+*.dat
+*.fil
+*.acl
+*.ac
+*.log
+*.xml
+*.dbp
+*.LOG
+*.xlsx
+*.INX
+
+#Ignore files build by Visual Studio
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
-*.out
-*.app
+*.dll
+*.pdb
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.sdt
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.tlog
+*.tmp
+*.keep*
+*.merge*
+*.exp
+*.bsc
+*.idb
+*.rgs
+*.lib
+*.prf
+*.sbr
+*.updt
+*.opensdf
+*.sdf
+*.ipch
+*.res
+*.lix
+*.vcxproj.user
+*.vcproj
+*.ccscc
+*.vssscc
+*.vsp
+*.psess
+*.map
+*.lastbuildstate
+*.manifest
+RC*
+*.zip
+* - Copy.*
+[Bb]in/
+[Dd]ebug*/
+[Rr]elease*/
+obj/
+_ReSharper*/
+[Tt]est[Rr]esult*/
+ipch/
+lib/
+[Tt]ools/
+buildscripts/
+packages/
