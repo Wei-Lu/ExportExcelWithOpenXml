@@ -112,6 +112,7 @@ namespace TestExcelCreate
     WorksheetPart worksheetPart1 = workbookPart1.AddNewPart<WorksheetPart>("rId1");
       
       GenerateWorksheetPartContent(worksheetPart1, partSheetData);
+      workbookPart1.Workbook.Save();
   }
 
   static private void GenerateWorksheetPartContent(WorksheetPart worksheetPart, SheetData sheetData)
@@ -121,7 +122,7 @@ namespace TestExcelCreate
     worksheet1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
     worksheet1.AddNamespaceDeclaration("x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
       worksheet1.AddNamespaceDeclaration("x", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-      SheetDimension sheetDimension1 = new SheetDimension() { Reference = "A1" };
+      SheetDimension sheetDimension1 = new SheetDimension() { Reference = "A1:D5" };
 
     SheetViews sheetViews1 = new SheetViews();
 
@@ -361,7 +362,7 @@ static private SheetData GenerateSheetdataForDetails(TestModelList data)
     //  Below function is used for generating child rows.
     static private Row GenerateRowForChildPartDetail(TestModel testmodel, uint rowIndex)
   {
-    Row tRow = new Row();
+    Row tRow = new Row() { RowIndex = rowIndex };
       var text = testmodel.TestId.ToString();
       tRow.Append(CreateCell(testmodel.TestId, CellValues.Number, rowIndex,  1));
     tRow.Append(CreateCell(testmodel.TestName, CellValues.SharedString, rowIndex, 2));
