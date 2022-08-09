@@ -32,7 +32,9 @@ namespace TestExcelCreate
   class Program
   {
     static string fileFullName;
-  static public void CreateExcelFile(TestModelList data, string OutPutFileDirectory)
+    static SharedStringTablePart sharedStringTablePart = null;
+
+    static public void CreateExcelFile(TestModelList data, string OutPutFileDirectory)
   {
     var datetime = DateTime.Now.ToString().Replace("/", "_").Replace(":", "_");
 
@@ -89,10 +91,19 @@ namespace TestExcelCreate
 
     static private void CreatePartsForExcel(SpreadsheetDocument document, TestModelList data)
   {
-    SheetData partSheetData = GenerateSheetdataForDetails(data);
 
     WorkbookPart workbookPart1 = document.AddWorkbookPart();
-    GenerateWorkbookPartContent(workbookPart1);
+      if (workbookPart1.GetPartsOfType<SharedStringTablePart>().Count() > 0)
+      {
+        sharedStringTablePart = workbookPart1.GetPartsOfType<SharedStringTablePart>().First();
+      }
+      else
+      {
+        sharedStringTablePart = workbookPart1.AddNewPart<SharedStringTablePart>();
+      }
+      SheetData partSheetData = GenerateSheetdataForDetails(data);
+
+      GenerateWorkbookPartContent(workbookPart1);
 
     WorkbookStylesPart workbookStylesPart1 = workbookPart1.AddNewPart<WorkbookStylesPart>("rId3");
       //    GenerateWorkbookStylesPartContent(workbookStylesPart1);
@@ -281,14 +292,6 @@ namespace TestExcelCreate
     }
 
 
- /*   static private void GenerateWorkbookStylesPartContent(WorkbookStylesPart workbookStylesPart)
-  {
-    Stylesheet stylesheet1 = new Stylesheet() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x14ac" } };
-    stylesheet1.AddNamespaceDeclaration("x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
-
-    workbookStylesPart.Stylesheet = stylesheet1;
-  }
- */
 static private SheetData GenerateSheetdataForDetails(TestModelList data)
   {
     SheetData sheetData1 = new SheetData();
@@ -303,13 +306,42 @@ static private SheetData GenerateSheetdataForDetails(TestModelList data)
     return sheetData1;
   }
 
+    private static int InsertSharedStringItem(string text, SharedStringTablePart shareStringPart)
+    {
+      // If the part does not contain a SharedStringTable, create one.
+      if (shareStringPart.SharedStringTable == null)
+      {
+        shareStringPart.SharedStringTable = new SharedStringTable();
+      }
+
+      int i = 0;
+
+      // Iterate through all the items in the SharedStringTable. If the text already exists, return its index.
+      foreach (SharedStringItem item in shareStringPart.SharedStringTable.Elements<SharedStringItem>())
+      {
+        if (item.InnerText == text)
+        {
+          return i;
+        }
+
+        i++;
+      }
+
+      // The text does not exist in the part. Create the SharedStringItem and return its index.
+      shareStringPart.SharedStringTable.AppendChild(new SharedStringItem(new DocumentFormat.OpenXml.Spreadsheet.Text(text)));
+      shareStringPart.SharedStringTable.Save();
+
+      return i;
+    }
+
+
     static private Row CreateHeaderRowForExcel(uint rowIndex)
     {
     Row workRow = new Row() { RowIndex = rowIndex };
-    workRow.Append(CreateCell("Test Id", CellValues.String, rowIndex, 1));
-    workRow.Append(CreateCell("Test Name", CellValues.String, rowIndex, 2));
-    workRow.Append(CreateCell("Test Date", CellValues.String, rowIndex, 3));
-    workRow.Append(CreateCell("Test Logic", CellValues.String, rowIndex, 4));
+    workRow.Append(CreateCell("Test Id", CellValues.SharedString, rowIndex, 1));
+    workRow.Append(CreateCell("Test Name", CellValues.SharedString, rowIndex, 2));
+    workRow.Append(CreateCell("Test Date", CellValues.SharedString, rowIndex, 3));
+    workRow.Append(CreateCell("Test Logic", CellValues.SharedString, rowIndex, 4));
     return workRow;
   }
 
@@ -332,7 +364,7 @@ static private SheetData GenerateSheetdataForDetails(TestModelList data)
     Row tRow = new Row();
       var text = testmodel.TestId.ToString();
       tRow.Append(CreateCell(testmodel.TestId, CellValues.Number, rowIndex,  1));
-    tRow.Append(CreateCell(testmodel.TestName, CellValues.String, rowIndex, 2));
+    tRow.Append(CreateCell(testmodel.TestName, CellValues.SharedString, rowIndex, 2));
       text = testmodel.TestDate.ToShortDateString();
       tRow.Append(CreateCell(testmodel.TestDate.ToShortDateString(), CellValues.Date, rowIndex, 3));
      text = testmodel.TestDate.ToShortDateString();
@@ -373,7 +405,14 @@ static private Cell CreateCell(Object text, CellValues type, uint rowIndex, int 
                 cell.CellValue = new CellValue((int)text);
                 break;
 
-              default:
+        case CellValues.SharedString:
+          int index = InsertSharedStringItem((string)text, sharedStringTablePart);
+          cell.CellValue = new CellValue(index.ToString());
+          cell.DataType = new EnumValue<CellValues>(CellValues.SharedString);
+
+          break;
+
+        default:
                 cell.CellValue = new CellValue((string)text);
           break;
             }
